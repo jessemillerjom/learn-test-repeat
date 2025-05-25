@@ -5,7 +5,7 @@
       "schedule": "0 2 * * *"
     },
     {
-      "url": "https://loaparhdfcqcxragkbel.functions.supabase.co/enrich-batch",
+      "path": "/api/cron/enrich",
       "schedule": "5 3 * * *"  
     }
   ]
