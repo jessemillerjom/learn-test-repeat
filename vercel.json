@@ -3,6 +3,10 @@
     {
       "path": "/api/cron/fetch-feeds",
       "schedule": "0 2 * * *"
+    },
+    {
+      "url": "https://loaparhdfcqcxragkbel.functions.supabase.co/enrich-batch",
+      "schedule": "5 3 * * *"  
     }
   ]
 } 
