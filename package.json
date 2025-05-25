@@ -15,9 +15,9 @@
     "@tailwindcss/typography": "^0.5.16",
     "date-fns": "^4.1.0",
     "date-fns-tz": "^3.2.0",
-    "next": "^15.3.2",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
+    "next": "^14.2.4",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
     "react-markdown": "^10.1.0",
     "rehype-raw": "^7.0.0",
     "rss-parser": "^3.13.0"
@@ -25,8 +25,8 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@types/node": "^22.15.21",
-    "@types/react": "^19.1.5",
-    "@types/react-dom": "^19",
+    "@types/react": "^18.2.41",
+    "@types/react-dom": "^18.2.15",
     "eslint": "^9",
     "eslint-config-next": "15.1.8",
     "postcss": "^8",
