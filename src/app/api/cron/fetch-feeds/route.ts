@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server'
 import { fetchAndStoreFeeds } from '@/lib/rss'
-import { enrichUnanalyzedArticles } from '@/lib/enrich'
 import { createClient } from '@supabase/supabase-js'
 
 // Initialize Supabase client
@@ -25,20 +24,16 @@ export async function GET(request: Request) {
     // Fetch and store feeds
     const feedResult = await fetchAndStoreFeeds()
 
-    // Enrich unanalyzed articles
-    const enrichResult = await enrichUnanalyzedArticles()
-
     return NextResponse.json({ 
       success: true,
-      message: 'Feeds fetched and enrichment completed successfully',
-      feedResult,
-      enrichResult
+      message: 'Feeds fetched successfully',
+      feedResult
     })
   } catch (error) {
     console.error('Error in fetch-feeds cron job:', error)
     return NextResponse.json(
       { 
-        error: 'Failed to fetch feeds and enrich articles',
+        error: 'Failed to fetch feeds',
         details: error instanceof Error ? error.message : 'Unknown error'
       },
       { status: 500 }
