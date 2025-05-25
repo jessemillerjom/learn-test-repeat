@@ -37,7 +37,11 @@ export async function middleware(request: NextRequest) {
   const { data: { session } } = await supabase.auth.getSession()
 
   // If user is not signed in and trying to access a protected route
-  if (!session && !request.nextUrl.pathname.startsWith('/auth/')) {
+  if (
+    !session &&
+    !request.nextUrl.pathname.startsWith('/auth/') &&
+    !request.nextUrl.pathname.startsWith('/api/cron/fetch-feeds')
+  ) {
     return NextResponse.redirect(new URL('/auth/signin', request.url))
   }
 
