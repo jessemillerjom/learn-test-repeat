@@ -1,6 +1,3 @@
--- Enable Row Level Security
-ALTER TABLE auth.users ENABLE ROW LEVEL SECURITY;
-
 -- Create technologies table
 CREATE TABLE technologies (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
