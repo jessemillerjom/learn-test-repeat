@@ -34,7 +34,7 @@ export function AuthForm({ mode = 'signin' }: { mode?: AuthMode }) {
       } else {
         await signUp(email, password)
         // For signup, we can use client-side navigation since we're not authenticated yet
-        router.push('/auth/signin')
+        router.push('/auth/check-email')
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred')
