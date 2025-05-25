@@ -290,7 +290,7 @@ export default function ArticleClient({ id }: { id: string }) {
       </article>
 
       <div className="mt-12">
-        <h2 className="text-2xl font-bold mb-4">AI Learning Assistant</h2>
+        <h2 className="text-2xl font-bold mb-4 text-gray-900">AI Learning Assistant</h2>
         {markdown ? (
           <div className="prose max-w-none bg-gray-50 border border-gray-200 rounded-lg p-6 w-full text-gray-900">
             <ReactMarkdown>{markdown}</ReactMarkdown>
@@ -300,14 +300,14 @@ export default function ArticleClient({ id }: { id: string }) {
         )}
         {prompts && (
           <div className="mt-8">
-            <h3 className="text-xl font-bold mb-4">Prompts for AI Assistants</h3>
+            <h3 className="text-xl font-bold mb-4 text-gray-900">Prompts for AI Assistants</h3>
             <div className="space-y-8">
               {PROMPT_TOOLS.map(tool => (
                 prompts[tool.name] ? (
                   <div key={tool.name} className="flex flex-col gap-2">
                     <div className="flex items-center mb-2">
                       {PROMPT_TOOL_ICONS[tool.name]}
-                      <span className="font-semibold text-lg">{tool.name}</span>
+                      <span className="font-semibold text-lg text-gray-900">{tool.name}</span>
                     </div>
                     <CopyableCodeBlock tool={tool.name}>{prompts[tool.name]}</CopyableCodeBlock>
                   </div>

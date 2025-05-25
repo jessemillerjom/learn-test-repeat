@@ -290,7 +290,7 @@ export default function NewsFeed() {
       {/* Recommended Articles Tab Content */}
       {activeTab === 'recommended' && (
         <div className="mb-12">
-          <h2 className="text-2xl font-bold mb-4">Recommended Articles</h2>
+          <h2 className="text-2xl font-bold mb-4 text-gray-900">Recommended Articles</h2>
           {recommendedArticles.length === 0 ? (
             <div className="text-gray-500">No recommended articles found.</div>
           ) : (
@@ -325,14 +325,14 @@ export default function NewsFeed() {
                         <div className="ai-analysis bg-gray-50 border border-gray-100 rounded-md p-4 mb-3">
                           <h3 className="font-semibold text-gray-800 mb-2">AI Analysis</h3>
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
-                            <p>Category: <span className="value font-semibold text-gray-700">{article.ai_category}</span></p>
-                            <p>Practical Level: <span className="value font-semibold text-gray-700">{article.ai_practical_level}</span></p>
-                            <p>Difficulty: <span className="value font-semibold text-gray-700">{article.ai_difficulty}</span></p>
-                            <p>Time to Experiment: <span className="value font-semibold text-gray-700">{article.ai_time_to_experiment} minutes</span></p>
-                            <p>Technologies: <span className="value font-semibold text-gray-700">{article.ai_technologies?.join(', ')}</span></p>
-                            <p>Has Code: <span className="value font-semibold text-gray-700">{article.ai_has_code ? 'Yes' : 'No'}</span></p>
-                            <p>Has API: <span className="value font-semibold text-gray-700">{article.ai_has_api ? 'Yes' : 'No'}</span></p>
-                            <p>Has Demo: <span className="value font-semibold text-gray-700">{article.ai_has_demo ? 'Yes' : 'No'}</span></p>
+                            <p><span className="text-gray-900">Category:</span> <span className="value font-semibold text-gray-700">{article.ai_category}</span></p>
+                            <p><span className="text-gray-900">Practical Level:</span> <span className="value font-semibold text-gray-700">{article.ai_practical_level}</span></p>
+                            <p><span className="text-gray-900">Difficulty:</span> <span className="value font-semibold text-gray-700">{article.ai_difficulty}</span></p>
+                            <p><span className="text-gray-900">Time to Experiment:</span> <span className="value font-semibold text-gray-700">{article.ai_time_to_experiment} minutes</span></p>
+                            <p><span className="text-gray-900">Technologies:</span> <span className="value font-semibold text-gray-700">{article.ai_technologies?.join(', ')}</span></p>
+                            <p><span className="text-gray-900">Has Code:</span> <span className="value font-semibold text-gray-700">{article.ai_has_code ? 'Yes' : 'No'}</span></p>
+                            <p><span className="text-gray-900">Has API:</span> <span className="value font-semibold text-gray-700">{article.ai_has_api ? 'Yes' : 'No'}</span></p>
+                            <p><span className="text-gray-900">Has Demo:</span> <span className="value font-semibold text-gray-700">{article.ai_has_demo ? 'Yes' : 'No'}</span></p>
                           </div>
                         </div>
                       )}
@@ -404,14 +404,14 @@ export default function NewsFeed() {
                       <div className="ai-analysis bg-gray-50 border border-gray-100 rounded-md p-4 mb-3">
                         <h3 className="font-semibold text-gray-800 mb-2">AI Analysis</h3>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
-                          <p>Category: <span className="value font-semibold text-gray-700">{article.ai_category}</span></p>
-                          <p>Practical Level: <span className="value font-semibold text-gray-700">{article.ai_practical_level}</span></p>
-                          <p>Difficulty: <span className="value font-semibold text-gray-700">{article.ai_difficulty}</span></p>
-                          <p>Time to Experiment: <span className="value font-semibold text-gray-700">{article.ai_time_to_experiment} minutes</span></p>
-                          <p>Technologies: <span className="value font-semibold text-gray-700">{article.ai_technologies?.join(', ')}</span></p>
-                          <p>Has Code: <span className="value font-semibold text-gray-700">{article.ai_has_code ? 'Yes' : 'No'}</span></p>
-                          <p>Has API: <span className="value font-semibold text-gray-700">{article.ai_has_api ? 'Yes' : 'No'}</span></p>
-                          <p>Has Demo: <span className="value font-semibold text-gray-700">{article.ai_has_demo ? 'Yes' : 'No'}</span></p>
+                          <p><span className="text-gray-900">Category:</span> <span className="value font-semibold text-gray-700">{article.ai_category}</span></p>
+                          <p><span className="text-gray-900">Practical Level:</span> <span className="value font-semibold text-gray-700">{article.ai_practical_level}</span></p>
+                          <p><span className="text-gray-900">Difficulty:</span> <span className="value font-semibold text-gray-700">{article.ai_difficulty}</span></p>
+                          <p><span className="text-gray-900">Time to Experiment:</span> <span className="value font-semibold text-gray-700">{article.ai_time_to_experiment} minutes</span></p>
+                          <p><span className="text-gray-900">Technologies:</span> <span className="value font-semibold text-gray-700">{article.ai_technologies?.join(', ')}</span></p>
+                          <p><span className="text-gray-900">Has Code:</span> <span className="value font-semibold text-gray-700">{article.ai_has_code ? 'Yes' : 'No'}</span></p>
+                          <p><span className="text-gray-900">Has API:</span> <span className="value font-semibold text-gray-700">{article.ai_has_api ? 'Yes' : 'No'}</span></p>
+                          <p><span className="text-gray-900">Has Demo:</span> <span className="value font-semibold text-gray-700">{article.ai_has_demo ? 'Yes' : 'No'}</span></p>
                         </div>
                       </div>
                     )}
