@@ -91,4 +91,63 @@ export async function fetchLibraryArticles(page: number, pageSize: number) {
     ),
     total: count || 0
   };
+}
+
+// Check if user has seen the About modal
+export async function hasSeenAboutModal(): Promise<boolean> {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return false;
+
+  const { data, error } = await supabase
+    .from('user_preferences')
+    .select('has_seen_about')
+    .eq('user_id', user.id)
+    .single();
+
+  if (error) {
+    // If no record exists, create one
+    if (error.code === 'PGRST116') {
+      await markAboutModalSeen();
+      return false;
+    }
+    console.error('Error checking about modal status:', error);
+    return false;
+  }
+
+  return data?.has_seen_about ?? false;
+}
+
+// Mark that user has seen the About modal
+export async function markAboutModalSeen(): Promise<boolean> {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return false;
+
+  const { error } = await supabase
+    .from('user_preferences')
+    .upsert({
+      user_id: user.id,
+      has_seen_about: true
+    });
+
+  if (error) {
+    console.error('Error marking about modal as seen:', error);
+    return false;
+  }
+
+  return true;
+}
+
+// Fetch all RSS feeds
+export async function fetchRssFeeds() {
+  const { data, error } = await supabase
+    .from('rss_feeds')
+    .select('name, url')
+    .order('name');
+  
+  if (error) {
+    console.error('Error fetching RSS feeds:', error);
+    return [];
+  }
+  
+  return data;
 } 
