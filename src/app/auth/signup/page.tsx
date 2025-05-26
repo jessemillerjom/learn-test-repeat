@@ -8,8 +8,8 @@ export default function SignUpPage() {
           <img 
             src="/full_logo.svg"
             alt="Learn Test Repeat full logo"
-            className="h-20 w-auto"
-            style={{ maxWidth: '300px' }}
+            className="h-24 w-auto"
+            style={{ maxWidth: '400px' }}
           />
         </div>
         <div>
