@@ -1,5 +1,7 @@
 # Learn Test Repeat
 
+![Learn Test Repeat Logo](/public/full_logo.svg)
+
 A modern web application that aggregates and enriches AI/tech articles, helping users discover and learn from the latest developments in technology.
 
 ## Features
