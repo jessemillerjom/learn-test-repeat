@@ -1,6 +1,6 @@
 import { createBrowserClient } from '@supabase/ssr'
 import { Database } from '@/types/database'
-import { Article } from '@/types/article'
+import type { Article } from '../types/article'
 
 if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
   throw new Error('Missing env.NEXT_PUBLIC_SUPABASE_URL')
@@ -76,9 +76,19 @@ export async function fetchLibraryArticles(page: number, pageSize: number) {
     console.error('Error fetching library articles:', error);
     return { articles: [], total: 0 };
   }
-  // Map each article and attach library_created_at
+  // Type assertion to help TypeScript understand the structure
+  type LibraryItem = {
+    article_id: string;
+    created_at: string;
+    articles: Article[];
+  };
+  
   return {
-    articles: data.map(item => ({ ...item.articles, library_created_at: item.created_at })),
+    articles: (data as LibraryItem[]).flatMap(item =>
+      item.articles?.[0] && item.articles[0].id && item.articles[0].title
+        ? [{ ...item.articles[0], library_created_at: item.created_at }]
+        : []
+    ),
     total: count || 0
   };
 } 

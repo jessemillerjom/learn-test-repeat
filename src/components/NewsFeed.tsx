@@ -138,7 +138,7 @@ export default function NewsFeed() {
   const itemsPerPage = 10
   const [activeTab, setActiveTab] = useState<'recommended' | 'all' | 'library'>('recommended')
   const [currentRecommendedPage, setCurrentRecommendedPage] = useState(1)
-  const [libraryArticles, setLibraryArticles] = useState<ArticleType[]>([])
+  const [libraryArticles, setLibraryArticles] = useState<(ArticleType & { library_created_at?: string })[]>([])
   const [libraryPage, setLibraryPage] = useState(1)
   const [libraryTotal, setLibraryTotal] = useState(0)
   const [libraryLoading, setLibraryLoading] = useState(false)
@@ -282,7 +282,7 @@ export default function NewsFeed() {
     if (activeTab === 'library') {
       setLibraryLoading(true);
       fetchLibraryArticles(libraryPage, 10).then(({ articles, total }) => {
-        setLibraryArticles(articles as ArticleType[]);
+        setLibraryArticles(articles);
         setLibraryTotal(total);
         setLibraryLoading(false);
       });
@@ -321,7 +321,7 @@ export default function NewsFeed() {
     // Refresh library articles if on library tab
     if (activeTab === 'library') {
       fetchLibraryArticles(libraryPage, 10).then(({ articles, total }) => {
-        setLibraryArticles(articles as ArticleType[]);
+        setLibraryArticles(articles);
         setLibraryTotal(total);
       });
     }
@@ -504,7 +504,9 @@ export default function NewsFeed() {
             <div className="space-y-8">
               {libraryArticles
                 .slice()
-                .sort((a, b) => new Date(b.library_created_at).getTime() - new Date(a.library_created_at).getTime())
+                .sort((a, b) =>
+                  new Date(b.library_created_at ?? 0).getTime() - new Date(a.library_created_at ?? 0).getTime()
+                )
                 .map((article) => (
                   <ArticleCard key={article.id} article={article} libraryStatus={libraryStatus} toggleLibrary={toggleLibrary} inLibraryTab={true} />
                 ))}
