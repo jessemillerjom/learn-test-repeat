@@ -36,6 +36,11 @@ export async function middleware(request: NextRequest) {
 
   const { data: { session } } = await supabase.auth.getSession()
 
+  // Allow access to public assets
+  if (request.nextUrl.pathname.startsWith('/public/')) {
+    return response
+  }
+
   // If user is not signed in and trying to access a protected route
   if (
     !session &&
