@@ -1,6 +1,6 @@
 # Learn Test Repeat
+<img src="/public/full_logo.svg" alt="Learn Test Repeat Logo" width="200">
 
-![Learn Test Repeat Logo](/public/full_logo.svg)
 
 A modern web application that aggregates and enriches AI/tech articles, helping users discover and learn from the latest developments in technology.
 
