@@ -14,12 +14,12 @@ export function Navbar() {
         <div className="flex justify-between h-16">
           <div className="flex items-center">
             <Link href="/" className="flex items-center">
-              <span className="text-xl font-bold text-gray-900">Learn Test Repeat</span>
+              <span className="text-xl font-bold text-gray-900 dark:text-gray-900">Learn Test Repeat</span>
             </Link>
             <button
               type="button"
               onClick={() => setAboutOpen(true)}
-              className="ml-3 px-3 py-1 rounded-full bg-blue-600 text-white text-xs font-semibold shadow hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400"
+              className="ml-3 px-3 py-1 rounded-full bg-blue-600 text-white dark:text-gray-100 text-xs font-semibold shadow hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400"
               aria-label="About this project"
             >
               About
@@ -32,7 +32,7 @@ export function Navbar() {
                 <span className="text-sm text-gray-700">{user.email}</span>
                 <button
                   onClick={() => signOut()}
-                  className="text-sm text-gray-700 hover:text-gray-900"
+                  className="text-sm text-gray-700 dark:text-gray-900 hover:text-gray-900 dark:hover:text-gray-900"
                 >
                   Sign out
                 </button>
@@ -54,7 +54,7 @@ export function Navbar() {
           <div className="bg-white rounded-lg shadow-lg max-w-lg w-full p-6 relative animate-fade-in">
             <button
               onClick={() => setAboutOpen(false)}
-              className="absolute top-2 right-2 text-gray-400 hover:text-gray-700 text-xl font-bold focus:outline-none"
+              className="absolute top-2 right-2 text-gray-400 dark:text-gray-100 hover:text-gray-700 dark:hover:text-gray-100 text-xl font-bold focus:outline-none"
               aria-label="Close About modal"
             >
               &times;

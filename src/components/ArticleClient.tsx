@@ -4,7 +4,7 @@ import { useEffect, useState, useRef } from 'react';
 import ReactMarkdown from 'react-markdown';
 import Link from 'next/link';
 import { formatDistanceToNow } from 'date-fns';
-import { supabase } from '@/lib/supabase';
+import { supabase, isArticleInLibrary, addToLibrary, removeFromLibrary } from '@/lib/supabase';
 import { generatePlaceholderImage } from '@/lib/placeholderImage';
 
 interface Article {
@@ -155,6 +155,7 @@ export default function ArticleClient({ id }: { id: string }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const isFetching = useRef(false);
+  const [isInLibrary, setIsInLibrary] = useState(false);
 
   useEffect(() => {
     async function fetchData() {
@@ -170,6 +171,12 @@ export default function ArticleClient({ id }: { id: string }) {
         return;
       }
       setArticle(art);
+      // Check if article is in library
+      const checkLibraryStatus = async () => {
+        const inLibrary = await isArticleInLibrary(id);
+        setIsInLibrary(inLibrary);
+      };
+      checkLibraryStatus();
       // Fetch enrichment from API (always, to get latest)
       try {
         const res = await fetch(`/api/articles/${id}/learn-more`, { method: 'POST' });
@@ -190,6 +197,16 @@ export default function ArticleClient({ id }: { id: string }) {
     fetchData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
+
+  // Toggle library status for the article
+  const toggleLibrary = async () => {
+    if (isInLibrary) {
+      await removeFromLibrary(id);
+    } else {
+      await addToLibrary(id);
+    }
+    setIsInLibrary(!isInLibrary);
+  };
 
   if (loading) {
     return (
@@ -253,9 +270,21 @@ export default function ArticleClient({ id }: { id: string }) {
               })}
             </span>
           </div>
-          <h1 className="text-3xl font-bold mb-4">{article.title}</h1>
+          <h1 className="text-3xl font-bold mb-4 text-gray-900 dark:text-gray-900">{article.title}</h1>
           {article.author && (
             <p className="text-gray-600">By {article.author}</p>
+          )}
+          {isInLibrary ? (
+            <span className="ml-2 px-4 py-2 text-gray-600">
+              ⭐ In my library
+            </span>
+          ) : (
+            <button
+              onClick={toggleLibrary}
+              className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 text-gray-900 dark:text-gray-900"
+            >
+              Add to my library
+            </button>
           )}
         </header>
 
@@ -290,7 +319,7 @@ export default function ArticleClient({ id }: { id: string }) {
       </article>
 
       <div className="mt-12">
-        <h2 className="text-2xl font-bold mb-4 text-gray-900">AI Learning Assistant</h2>
+        <h2 className="text-2xl font-bold mb-4 text-gray-900 dark:text-gray-900">AI Learning Assistant</h2>
         {markdown ? (
           <div className="prose max-w-none bg-gray-50 border border-gray-200 rounded-lg p-6 w-full text-gray-900">
             <ReactMarkdown>{markdown}</ReactMarkdown>
@@ -300,7 +329,7 @@ export default function ArticleClient({ id }: { id: string }) {
         )}
         {prompts && (
           <div className="mt-8">
-            <h3 className="text-xl font-bold mb-4 text-gray-900">Prompts for AI Assistants</h3>
+            <h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-900">Prompts for AI Assistants</h3>
             <div className="space-y-8">
               {PROMPT_TOOLS.map(tool => (
                 prompts[tool.name] ? (
