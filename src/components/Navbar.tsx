@@ -102,7 +102,8 @@ export function Navbar() {
                   <li>• Aggregates articles from curated RSS feeds</li>
                   <li>• AI-powered enrichment using Mistral AI</li>
                   <li>• Recommended articles that are good for hands-on experimentation</li>
-                  <li>• Filter by date, difficulty, practical level, and category</li>
+                  <li>• Filter by date, difficulty, practical level, and category under All articles</li>
+                  <li>• Add articles to library to create a list of articles to easily access later</li>
                 </ul>
               </div>
               <div className="mb-6">
