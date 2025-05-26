@@ -69,28 +69,52 @@ export async function fetchLibraryArticles(page: number, pageSize: number) {
   const start = (page - 1) * pageSize;
   const { data, error, count } = await supabase
     .from('user_libraries')
-    .select('article_id, created_at, articles(*)', { count: 'exact' })
+    .select(`
+      article_id,
+      created_at,
+      articles (
+        id,
+        title,
+        description,
+        content,
+        url,
+        published_at,
+        image_url,
+        source_name,
+        ai_summary,
+        ai_category,
+        ai_practical_level,
+        ai_difficulty,
+        ai_time_to_experiment,
+        ai_technologies,
+        ai_has_code,
+        ai_has_api,
+        ai_has_demo
+      )
+    `, { count: 'exact' })
     .range(start, start + pageSize - 1)
     .order('created_at', { ascending: false });
+
   if (error) {
     console.error('Error fetching library articles:', error);
     return { articles: [], total: 0 };
   }
-  // Type assertion to help TypeScript understand the structure
-  type LibraryItem = {
-    article_id: string;
-    created_at: string;
-    articles: Article[];
-  };
-  
-  return {
-    articles: (data as LibraryItem[]).flatMap(item =>
-      item.articles?.[0] && item.articles[0].id && item.articles[0].title
-        ? [{ ...item.articles[0], library_created_at: item.created_at }]
-        : []
-    ),
-    total: count || 0
-  };
+
+  // Transform the data to match the Article type
+  const articles = data
+    .map(item => {
+      const article = Array.isArray(item.articles) ? item.articles[0] : item.articles;
+      if (!article || !article.id || !article.title) {
+        return null;
+      }
+      return {
+        ...article,
+        library_created_at: item.created_at
+      };
+    })
+    .filter(Boolean);
+
+  return { articles, total: count || 0 };
 }
 
 // Check if user has seen the About modal
@@ -150,4 +174,16 @@ export async function fetchRssFeeds() {
   }
   
   return data;
+}
+
+// Fetch all article IDs in the user's library
+export async function fetchLibraryArticleIds(): Promise<string[]> {
+  const { data, error } = await supabase
+    .from('user_libraries')
+    .select('article_id');
+  if (error) {
+    console.error('Error fetching library article IDs:', error);
+    return [];
+  }
+  return data.map(item => item.article_id);
 } 

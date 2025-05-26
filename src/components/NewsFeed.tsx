@@ -8,7 +8,7 @@ import Pagination from './Pagination'
 import { generatePlaceholderImage } from '@/lib/placeholderImage'
 import Link from 'next/link'
 import { useMemo } from 'react'
-import { isArticleInLibrary, addToLibrary, removeFromLibrary, fetchLibraryArticles } from '@/lib/supabase'
+import { isArticleInLibrary, addToLibrary, removeFromLibrary, fetchLibraryArticles, fetchLibraryArticleIds } from '@/lib/supabase'
 import { Article as ArticleType } from '@/types/article'
 
 const PRACTICAL_LEVELS = [
@@ -282,23 +282,32 @@ export default function NewsFeed() {
     if (activeTab === 'library') {
       setLibraryLoading(true);
       fetchLibraryArticles(libraryPage, 10).then(({ articles, total }) => {
-        setLibraryArticles(articles);
+        setLibraryArticles(articles.filter(Boolean) as ArticleType[]);
         setLibraryTotal(total);
+        // Update library status for all articles
+        const newStatus = { ...libraryStatus };
+        articles.forEach(article => {
+          if (article) newStatus[article.id] = true;
+        });
+        setLibraryStatus(newStatus);
         setLibraryLoading(false);
       });
     }
   }, [activeTab, libraryPage]);
 
+  // Check library status for visible articles (batch)
   useEffect(() => {
     const checkLibraryStatus = async () => {
-      const status: Record<string, boolean> = {};
+      // Fetch all article IDs in the user's library in one call
+      const libraryIds = new Set(await fetchLibraryArticleIds());
       // Combine all visible articles (avoiding duplicates)
       const allVisible = [
         ...articles,
         ...recommendedArticles.filter(a => !articles.some(b => b.id === a.id))
       ];
+      const status: Record<string, boolean> = {};
       for (const article of allVisible) {
-        status[article.id] = await isArticleInLibrary(article.id);
+        status[article.id] = libraryIds.has(article.id);
       }
       setLibraryStatus(status);
     };
@@ -321,7 +330,7 @@ export default function NewsFeed() {
     // Refresh library articles if on library tab
     if (activeTab === 'library') {
       fetchLibraryArticles(libraryPage, 10).then(({ articles, total }) => {
-        setLibraryArticles(articles);
+        setLibraryArticles(articles.filter(Boolean) as ArticleType[]);
         setLibraryTotal(total);
       });
     }
