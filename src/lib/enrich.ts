@@ -40,7 +40,32 @@ export async function enrichUnanalyzedArticles() {
   for (const article of articles) {
     console.group(`📝 Processing: ${article.title}`)
     try {
-      const prompt = `Analyze this AI technology article and extract structured information for a learning platform database. Users want to filter between articles they can just read vs. things they can actually experiment with today. \nArticle Title: ${article.title}\nURL: ${article.url}\nPlease respond with a JSON object containing the following fields: { "category": "news|tutorial|research|tool|api|dataset", "practicalLevel": "news_only|beginner_friendly|intermediate|advanced|research_only", "aiTechnologies": ["technology1", "technology2"], "difficulty": "beginner|intermediate|advanced", "timeToExperiment": 30, "hasCode": true, "hasAPI": false, "hasDemo": true, "hasTutorial": false, "requiresPayment": false, "requiresSignup": true, "learningObjectives": ["What users will learn1", "What users will learn2"], "prerequisites": ["Required knowledge1", "Required tool2"], "summary": "2-3 sentence summary of the article", "keyTakeaways": ["Key point 1", "Key point 2", "Key point 3"], "tags": ["tag1", "tag2", "tag3"] } Guidelines: - category: What type of content this is - practicalLevel: How hands-on this content is - "news_only": Just announcements, no way to try it - "beginner_friendly": Can try it easily today with basic setup - "intermediate": Requires some technical knowledge/setup - "advanced": Requires significant expertise - "research_only": Academic/theoretical, not practically accessible yet - timeToExperiment: Estimated minutes needed to try this out (0 if not practical) - aiTechnologies: Specific AI technologies, models, or frameworks mentioned - All boolean fields should reflect what's actually available in the article - learningObjectectives: What someone would actually learn by engaging with this - prerequisites: What knowledge/tools someone needs before starting - tags: Relevant searchable keywords Focus on practical accessibility - can someone actually DO something with this information today?`
+      const prompt = `Analyze this AI technology article and extract structured information for a learning platform database. Users want to filter between articles they can just read vs. things they can actually experiment with today. 
+
+Article Title: ${article.title}
+URL: ${article.url}
+
+Return a JSON object with these EXACT fields (all fields are required):
+{
+  "category": "news|tutorial|research|tool|api|dataset",
+  "practicalLevel": "news_only|beginner_friendly|intermediate|advanced|research_only",
+  "aiTechnologies": ["technology1", "technology2"],
+  "difficulty": "beginner|intermediate|advanced",
+  "timeToExperiment": 30,
+  "hasCode": true,
+  "hasAPI": false,
+  "hasDemo": true,
+  "hasTutorial": false,
+  "requiresPayment": false,
+  "requiresSignup": true,
+  "learningObjectives": ["What users will learn1", "What users will learn2"],
+  "prerequisites": ["Required knowledge1", "Required tool2"],
+  "summary": "2-3 sentence summary of the article",
+  "keyTakeaways": ["Key point 1", "Key point 2", "Key point 3"],
+  "tags": ["tag1", "tag2", "tag3"]
+}
+
+IMPORTANT: All fields must be present and valid. Do not omit any fields.`
 
       console.info('Sending to Mistral for analysis...')
       const response = await mistral.chat.complete({
@@ -48,7 +73,7 @@ export async function enrichUnanalyzedArticles() {
         messages: [
           {
             role: 'system',
-            content: 'You are an AI analysis assistant that extracts structured information from articles. Respond with valid JSON only.'
+            content: 'You are an AI analysis assistant that extracts structured information from articles. Respond with valid JSON only. All fields in the response must be present and valid.'
           },
           {
             role: 'user',
@@ -65,16 +90,53 @@ export async function enrichUnanalyzedArticles() {
 
       let analysis = parseAIResponse(response.choices[0].message.content.toString().trim());
 
-      // If parsing fails, try to clean the response and parse again
-      if (!analysis) {
-        const retryPrompt = `Analyze this AI technology article and return ONLY a JSON object, no other text or formatting. Do not include any markdown formatting or explanatory text.\nArticle Title: ${article.title}\nURL: ${article.url}\nReturn a JSON object with these exact fields: { "category": "news|tutorial|research|tool|api|dataset", "practicalLevel": "news_only|beginner_friendly|intermediate|advanced|research_only", "aiTechnologies": ["technology1", "technology2"], "difficulty": "beginner|intermediate|advanced", "timeToExperiment": 30, "hasCode": true, "hasAPI": false, "hasDemo": true, "hasTutorial": false, "requiresPayment": false, "requiresSignup": true, "learningObjectives": ["What users will learn1", "What users will learn2"], "prerequisites": ["Required knowledge1", "Required tool2"], "summary": "2-3 sentence summary of the article", "keyTakeaways": ["Key point 1", "Key point 2", "Key point 3"], "tags": ["tag1", "tag2", "tag3"] }`
+      // Validate that all required fields are present
+      const requiredFields = [
+        'category', 'practicalLevel', 'aiTechnologies', 'difficulty',
+        'timeToExperiment', 'hasCode', 'hasAPI', 'hasDemo', 'hasTutorial',
+        'requiresPayment', 'requiresSignup', 'learningObjectives',
+        'prerequisites', 'summary', 'keyTakeaways', 'tags'
+      ];
+
+      const missingFields = requiredFields.filter(field => !analysis || !(field in analysis));
+      
+      // If any fields are missing, retry with a more explicit prompt
+      if (missingFields.length > 0) {
+        console.log(`Missing fields: ${missingFields.join(', ')}. Retrying with explicit prompt...`);
+        
+        const retryPrompt = `Analyze this AI technology article and return ONLY a JSON object with ALL required fields. Do not include any markdown formatting or explanatory text.
+
+Article Title: ${article.title}
+URL: ${article.url}
+
+Return a JSON object with these EXACT fields (all fields are required):
+{
+  "category": "news|tutorial|research|tool|api|dataset",
+  "practicalLevel": "news_only|beginner_friendly|intermediate|advanced|research_only",
+  "aiTechnologies": ["technology1", "technology2"],
+  "difficulty": "beginner|intermediate|advanced",
+  "timeToExperiment": 30,
+  "hasCode": true,
+  "hasAPI": false,
+  "hasDemo": true,
+  "hasTutorial": false,
+  "requiresPayment": false,
+  "requiresSignup": true,
+  "learningObjectives": ["What users will learn1", "What users will learn2"],
+  "prerequisites": ["Required knowledge1", "Required tool2"],
+  "summary": "2-3 sentence summary of the article",
+  "keyTakeaways": ["Key point 1", "Key point 2", "Key point 3"],
+  "tags": ["tag1", "tag2", "tag3"]
+}
+
+IMPORTANT: All fields must be present and valid. Do not omit any fields.`
 
         const retryResponse = await mistral.chat.complete({
           model: 'mistral-small-latest',
           messages: [
             {
               role: 'system',
-              content: 'You are an AI analysis assistant. Respond with clean JSON only, no markdown formatting or extra text.'
+              content: 'You are an AI analysis assistant. Respond with clean JSON only, no markdown formatting or extra text. All fields in the response must be present and valid.'
             },
             {
               role: 'user',
@@ -94,6 +156,12 @@ export async function enrichUnanalyzedArticles() {
         
         try {
           analysis = parseAIResponse(retryContent);
+          
+          // Check if retry response is complete
+          const stillMissingFields = requiredFields.filter(field => !analysis || !(field in analysis));
+          if (stillMissingFields.length > 0) {
+            throw new Error(`Still missing required fields after retry: ${stillMissingFields.join(', ')}`);
+          }
         } catch (parseError) {
           console.error('Failed to parse retry response:', parseError);
           console.debug('Raw retry content:', retryContent);

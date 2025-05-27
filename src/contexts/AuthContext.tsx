@@ -18,10 +18,6 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
-// Default user credentials for reference
-// Email: jessemiller.jom@gmail.com
-// Password: v3iHYFRJegULCFwwreR7
-
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<AppUser | null>(null)
   const [isLoading, setIsLoading] = useState(true)

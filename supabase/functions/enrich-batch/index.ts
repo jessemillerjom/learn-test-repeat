@@ -70,15 +70,85 @@ serve(async (_req) => {
 
   for (const article of articles ?? []) {
     try {
-      const prompt = `Analyze this AI technology article and extract structured information for a learning platform database. Users want to filter between articles they can just read vs. things they can actually experiment with today. \nArticle Title: ${article.title}\nURL: ${article.url}\n`;
+      const prompt = `Analyze this AI technology article and extract structured information for a learning platform database. Users want to filter between articles they can just read vs. things they can actually experiment with today. 
+
+Article Title: ${article.title}
+URL: ${article.url}
+
+Return a JSON object with these EXACT fields (all fields are required):
+{
+  "category": "news|tutorial|research|tool|api|dataset",
+  "practicalLevel": "news_only|beginner_friendly|intermediate|advanced|research_only",
+  "aiTechnologies": ["technology1", "technology2"],
+  "difficulty": "beginner|intermediate|advanced",
+  "timeToExperiment": 30,
+  "hasCode": true,
+  "hasAPI": false,
+  "hasDemo": true,
+  "hasTutorial": false,
+  "requiresPayment": false,
+  "requiresSignup": true,
+  "learningObjectives": ["What users will learn1", "What users will learn2"],
+  "prerequisites": ["Required knowledge1", "Required tool2"],
+  "summary": "2-3 sentence summary of the article",
+  "keyTakeaways": ["Key point 1", "Key point 2", "Key point 3"],
+  "tags": ["tag1", "tag2", "tag3"]
+}
+
+IMPORTANT: All fields must be present and valid. Do not omit any fields.`;
+
       let content = await callMistral(prompt);
       let analysis = parseAIResponse(content || "");
 
-      // Retry if parsing fails
-      if (!analysis) {
-        const retryPrompt = `Analyze this AI technology article and return ONLY a JSON object, no other text or formatting. Do not include any markdown formatting or explanatory text.\nArticle Title: ${article.title}\nURL: ${article.url}\nReturn a JSON object with these exact fields: { \"category\": \"news|tutorial|research|tool|api|dataset\", \"practicalLevel\": \"news_only|beginner_friendly|intermediate|advanced|research_only\", \"aiTechnologies\": [\"technology1\", \"technology2\"], \"difficulty\": \"beginner|intermediate|advanced\", \"timeToExperiment\": 30, \"hasCode\": true, \"hasAPI\": false, \"hasDemo\": true, \"hasTutorial\": false, \"requiresPayment\": false, \"requiresSignup\": true, \"learningObjectives\": [\"What users will learn1\", \"What users will learn2\"], \"prerequisites\": [\"Required knowledge1\", \"Required tool2\"], \"summary\": \"2-3 sentence summary of the article\", \"keyTakeaways\": [\"Key point 1\", \"Key point 2\", \"Key point 3\"], \"tags\": [\"tag1\", \"tag2\", \"tag3\"] }`;
+      // Validate that all required fields are present
+      const requiredFields = [
+        'category', 'practicalLevel', 'aiTechnologies', 'difficulty',
+        'timeToExperiment', 'hasCode', 'hasAPI', 'hasDemo', 'hasTutorial',
+        'requiresPayment', 'requiresSignup', 'learningObjectives',
+        'prerequisites', 'summary', 'keyTakeaways', 'tags'
+      ];
+
+      const missingFields = requiredFields.filter(field => !analysis || !(field in analysis));
+      
+      // If any fields are missing, retry with a more explicit prompt
+      if (missingFields.length > 0) {
+        console.log(`Missing fields: ${missingFields.join(', ')}. Retrying with explicit prompt...`);
+        
+        const retryPrompt = `Analyze this AI technology article and return ONLY a JSON object with ALL required fields. Do not include any markdown formatting or explanatory text.
+
+Article Title: ${article.title}
+URL: ${article.url}
+
+Return a JSON object with these EXACT fields (all fields are required):
+{
+  "category": "news|tutorial|research|tool|api|dataset",
+  "practicalLevel": "news_only|beginner_friendly|intermediate|advanced|research_only",
+  "aiTechnologies": ["technology1", "technology2"],
+  "difficulty": "beginner|intermediate|advanced",
+  "timeToExperiment": 30,
+  "hasCode": true,
+  "hasAPI": false,
+  "hasDemo": true,
+  "hasTutorial": false,
+  "requiresPayment": false,
+  "requiresSignup": true,
+  "learningObjectives": ["What users will learn1", "What users will learn2"],
+  "prerequisites": ["Required knowledge1", "Required tool2"],
+  "summary": "2-3 sentence summary of the article",
+  "keyTakeaways": ["Key point 1", "Key point 2", "Key point 3"],
+  "tags": ["tag1", "tag2", "tag3"]
+}
+
+IMPORTANT: All fields must be present and valid. Do not omit any fields.`;
+
         content = await callMistral(retryPrompt);
         analysis = parseAIResponse(content || "");
+        
+        // Check if retry response is complete
+        const stillMissingFields = requiredFields.filter(field => !analysis || !(field in analysis));
+        if (stillMissingFields.length > 0) {
+          throw new Error(`Still missing required fields after retry: ${stillMissingFields.join(', ')}`);
+        }
       }
 
       if (!analysis) throw new Error("Failed to parse AI response");
@@ -136,7 +206,7 @@ serve(async (_req) => {
   2. Make an HTTP request:
 
   curl -i --location --request POST 'http://127.0.0.1:54321/functions/v1/enrich-batch' \
-    --header 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0' \
+    --header 'Authorization: Bearer YOUR_ANON_KEY' \
     --header 'Content-Type: application/json' \
     --data '{"name":"Functions"}'
 
