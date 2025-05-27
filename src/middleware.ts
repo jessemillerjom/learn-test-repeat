@@ -45,7 +45,19 @@ export async function middleware(request: NextRequest) {
   if (
     !session &&
     !request.nextUrl.pathname.startsWith('/auth/') &&
-    !request.nextUrl.pathname.startsWith('/api/cron/fetch-feeds')
+    !request.nextUrl.pathname.startsWith('/api/cron/fetch-feeds') &&
+    !request.nextUrl.pathname.startsWith('/api/articles/') &&
+    !request.nextUrl.pathname.startsWith('/library') &&
+    !request.nextUrl.pathname.startsWith('/api/library')
+  ) {
+    return response
+  }
+
+  // If user is not signed in and trying to access library features
+  if (
+    !session &&
+    (request.nextUrl.pathname.startsWith('/library') ||
+     request.nextUrl.pathname.startsWith('/api/library'))
   ) {
     return NextResponse.redirect(new URL('/auth/signin', request.url))
   }

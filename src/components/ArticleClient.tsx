@@ -156,6 +156,7 @@ export default function ArticleClient({ id }: { id: string }) {
   const [error, setError] = useState<string | null>(null);
   const isFetching = useRef(false);
   const [isInLibrary, setIsInLibrary] = useState(false);
+  const [showAuthPrompt, setShowAuthPrompt] = useState(false);
 
   useEffect(() => {
     async function fetchData() {
@@ -200,6 +201,11 @@ export default function ArticleClient({ id }: { id: string }) {
 
   // Toggle library status for the article
   const toggleLibrary = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      setShowAuthPrompt(true);
+      return;
+    }
     if (isInLibrary) {
       await removeFromLibrary(id);
     } else {
@@ -346,6 +352,29 @@ export default function ArticleClient({ id }: { id: string }) {
           </div>
         )}
       </div>
+
+      {showAuthPrompt && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-xl max-w-md w-full mx-4">
+            <h3 className="text-lg font-semibold mb-4">Sign in Required</h3>
+            <p className="text-gray-600 mb-6">Please sign in to add articles to your library.</p>
+            <div className="flex justify-end gap-4">
+              <button
+                onClick={() => setShowAuthPrompt(false)}
+                className="px-4 py-2 text-gray-600 hover:text-gray-800"
+              >
+                Cancel
+              </button>
+              <Link
+                href="/auth/signin"
+                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+              >
+                Sign In
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 } 

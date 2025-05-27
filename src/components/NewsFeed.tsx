@@ -49,6 +49,17 @@ const TABS = [
 // ArticleCard component for consistent rendering
 function ArticleCard({ article, libraryStatus, toggleLibrary, inLibraryTab = false }: { article: ArticleType, libraryStatus: Record<string, boolean>, toggleLibrary: (id: string) => void, inLibraryTab?: boolean }) {
   const isInLibrary = libraryStatus[article.id];
+  const [showAuthPrompt, setShowAuthPrompt] = useState(false);
+
+  const handleLibraryToggle = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      setShowAuthPrompt(true);
+      return;
+    }
+    toggleLibrary(article.id);
+  };
+
   return (
     <div key={article.id} className="news-item bg-white border border-gray-200 rounded-lg p-6 mb-8 shadow-sm flex gap-4 items-start">
       <img
@@ -97,7 +108,7 @@ function ArticleCard({ article, libraryStatus, toggleLibrary, inLibraryTab = fal
           </a>
           {inLibraryTab && isInLibrary ? (
             <button
-              onClick={() => toggleLibrary(article.id)}
+              onClick={handleLibraryToggle}
               className="ml-2 px-4 py-2 bg-red-100 text-red-700 rounded hover:bg-red-200"
             >
               Remove from my library
@@ -108,7 +119,7 @@ function ArticleCard({ article, libraryStatus, toggleLibrary, inLibraryTab = fal
             </span>
           ) : (
             <button
-              onClick={() => toggleLibrary(article.id)}
+              onClick={handleLibraryToggle}
               className="ml-2 px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 text-gray-900 dark:text-gray-900"
             >
               Add to my library
@@ -117,6 +128,28 @@ function ArticleCard({ article, libraryStatus, toggleLibrary, inLibraryTab = fal
         </div>
         <hr className="divider border-t border-gray-200 mt-6" />
       </div>
+      {showAuthPrompt && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-xl max-w-md w-full mx-4">
+            <h3 className="text-lg font-semibold mb-4">Sign in Required</h3>
+            <p className="text-gray-600 mb-6">Please sign in to add articles to your library.</p>
+            <div className="flex justify-end gap-4">
+              <button
+                onClick={() => setShowAuthPrompt(false)}
+                className="px-4 py-2 text-gray-600 hover:text-gray-800"
+              >
+                Cancel
+              </button>
+              <Link
+                href="/auth/signin"
+                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+              >
+                Sign In
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -143,6 +176,7 @@ export default function NewsFeed() {
   const [libraryTotal, setLibraryTotal] = useState(0)
   const [libraryLoading, setLibraryLoading] = useState(false)
   const [libraryStatus, setLibraryStatus] = useState<Record<string, boolean>>({})
+  const [showAuthPrompt, setShowAuthPrompt] = useState(false);
 
   // Fetch recommended articles
   const fetchRecommendedArticles = async () => {
@@ -277,6 +311,18 @@ export default function NewsFeed() {
     if (activeTab === 'recommended') setCurrentRecommendedPage(1);
   }, [activeTab]);
 
+  // Handle tab change with authentication check
+  const handleTabChange = async (tab: 'recommended' | 'all' | 'library') => {
+    if (tab === 'library') {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        setShowAuthPrompt(true);
+        return;
+      }
+    }
+    setActiveTab(tab);
+  };
+
   // Fetch library articles when the library tab is active
   useEffect(() => {
     if (activeTab === 'library') {
@@ -347,19 +393,19 @@ export default function NewsFeed() {
         <div className="flex space-x-4">
           <button
             className={`px-4 py-2 rounded ${activeTab === 'recommended' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-900 dark:text-gray-900'}`}
-            onClick={() => setActiveTab('recommended')}
+            onClick={() => handleTabChange('recommended')}
           >
             Recommended
           </button>
           <button
             className={`px-4 py-2 rounded ${activeTab === 'all' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-900 dark:text-gray-900'}`}
-            onClick={() => setActiveTab('all')}
+            onClick={() => handleTabChange('all')}
           >
             All Articles
           </button>
           <button
             className={`px-4 py-2 rounded ${activeTab === 'library' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-900 dark:text-gray-900'}`}
-            onClick={() => setActiveTab('library')}
+            onClick={() => handleTabChange('library')}
           >
             My Library
           </button>
@@ -521,6 +567,29 @@ export default function NewsFeed() {
                 ))}
             </div>
           )}
+        </div>
+      )}
+
+      {showAuthPrompt && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-xl max-w-md w-full mx-4">
+            <h3 className="text-lg font-semibold mb-4">Sign in Required</h3>
+            <p className="text-gray-600 mb-6">Please sign in to view your library.</p>
+            <div className="flex justify-end gap-4">
+              <button
+                onClick={() => setShowAuthPrompt(false)}
+                className="px-4 py-2 text-gray-600 hover:text-gray-800"
+              >
+                Cancel
+              </button>
+              <Link
+                href="/auth/signin"
+                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+              >
+                Sign In
+              </Link>
+            </div>
+          </div>
         </div>
       )}
     </div>
